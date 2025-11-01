@@ -7,6 +7,6 @@ dependencies:
   - pip
   - pip:
       - mlflow==2.13.0
-      - pandas
-      - scikit-learn
-      - joblib
+      - pandas # <-- Baris ini harus ada
+      - scikit-learn # <-- Baris ini harus ada
+      - joblib # <-- Baris ini harus ada
