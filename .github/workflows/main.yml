@@ -4,39 +4,37 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # Izinkan trigger manual
+  workflow_dispatch:
 
 jobs:
   train-model:
-    runs-on: ubuntu-latest # Jalankan di server Linux
+    runs-on: ubuntu-latest
 
     steps:
-      # Langkah 1: Checkout kode (kita update ke v4)
+      # Langkah 1: Checkout kode
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Langkah 2: Setup Miniconda (INI PERUBAHAN KUNCI)
-      # Action ini akan meng-instal Conda dan menginisialisasi shell
+      # Langkah 2: Setup Miniconda
       - name: Set up Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.10" # Versi Python yang sesuai dengan conda.yaml
-          auto-activate-base: true # Penting untuk inisialisasi shell
+          python-version: "3.10"
+          auto-activate-base: true
 
       # Langkah 3: Install MLflow (di base env)
-      # Kita hanya perlu 'mlflow' di base env agar perintah 'mlflow run' bisa dipanggil
       - name: Install MLflow
+        shell: bash -l {0} # <--- TAMBAHKAN BARIS INI
         run: pip install mlflow==2.13.0
 
       # Langkah 4: Menjalankan MLflow Project
-      # Sekarang 'mlflow run' akan menggunakan Conda yang sudah ter-setup
-      # untuk membuat env baru dari 'conda.yaml' dan mengaktifkannya
       - name: Run MLflow Project
+        shell: bash -l {0} # <--- TAMBAHKAN BARIS INI
         run: mlflow run ./MLProject_files --experiment-name "Telco_Churn_CI_Workflow"
 
       # Langkah 5: Mengarsipkan Artefak Pelatihan
       - name: Archive training artifacts (mlruns)
-        uses: actions/upload-artifact@v4 # Versi v4 yang sudah benar
+        uses: actions/upload-artifact@v4
         with:
           name: mlruns-artifacts
           path: mlruns/
