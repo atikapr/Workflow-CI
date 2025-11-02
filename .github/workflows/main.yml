@@ -18,7 +18,7 @@ jobs:
       # Langkah 2: Setup Miniconda (INI PERUBAHAN KUNCI)
       # Action ini akan meng-instal Conda dan menginisialisasi shell
       - name: Set up Miniconda
-        uses: conda-actions/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
           python-version: "3.10" # Versi Python yang sesuai dengan conda.yaml
           auto-activate-base: true # Penting untuk inisialisasi shell
