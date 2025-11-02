@@ -1,46 +1,42 @@
 name: Kriteria 3 - MLflow CI Workflow
 
-# Trigger: Jalankan workflow ini setiap kali ada 'push' ke branch 'main'
 on:
   push:
     branches:
       - main
-  workflow_dispatch: # Juga izinkan trigger manual
+  workflow_dispatch: # Izinkan trigger manual
 
 jobs:
   train-model:
     runs-on: ubuntu-latest # Jalankan di server Linux
 
     steps:
-      # Langkah 1: Checkout kode dari repository
+      # Langkah 1: Checkout kode (kita update ke v4)
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Langkah 2: Setup environment Python
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      # Langkah 2: Setup Miniconda (INI PERUBAHAN KUNCI)
+      # Action ini akan meng-instal Conda dan menginisialisasi shell
+      - name: Set up Miniconda
+        uses: conda-actions/setup-miniconda@v2
         with:
-          python-version: "3.10" # Sesuaikan dengan conda.yaml
+          python-version: "3.10" # Versi Python yang sesuai dengan conda.yaml
+          auto-activate-base: true # Penting untuk inisialisasi shell
 
-      # Langkah 3: Install MLflow dan dependencies (menggunakan pip)
-      # Kita install manual di sini agar lebih cepat daripada conda
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install mlflow==2.13.0 pandas scikit-learn joblib
+      # Langkah 3: Install MLflow (di base env)
+      # Kita hanya perlu 'mlflow' di base env agar perintah 'mlflow run' bisa dipanggil
+      - name: Install MLflow
+        run: pip install mlflow==2.13.0
 
       # Langkah 4: Menjalankan MLflow Project
-      # Ini adalah inti dari Kriteria 3 (Basic)
+      # Sekarang 'mlflow run' akan menggunakan Conda yang sudah ter-setup
+      # untuk membuat env baru dari 'conda.yaml' dan mengaktifkannya
       - name: Run MLflow Project
         run: mlflow run ./MLProject_files --experiment-name "Telco_Churn_CI_Workflow"
-        # Perintah ini akan:
-        # 1. Melihat file 'MLProject' di './MLProject_files'
-        # 2. Menjalankan 'command' dari entry point 'main'
-        # 3. Menyimpan hasilnya di folder 'mlruns' (default)
 
-      # Langkah 5: Mengarsipkan Artefak Pelatihan (Kriteria 3 Skilled)
+      # Langkah 5: Mengarsipkan Artefak Pelatihan
       - name: Archive training artifacts (mlruns)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4 # Versi v4 yang sudah benar
         with:
-          name: mlruns-artifacts # Nama artifact yang akan di-upload
-          path: mlruns/ # Folder yang akan di-upload
+          name: mlruns-artifacts
+          path: mlruns/
